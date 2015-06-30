@@ -26,9 +26,12 @@ $GLOBALS['wgExtensionCredits']['parserhook'][] = array(
 $GLOBALS['wgExtensionMessagesFiles']['SocialTagsMagic']	= dirname( __FILE__ ) . '/SocialTags.magic.php';
 $GLOBALS['wgMessagesDirs']['SocialTags']				= __DIR__ . '/i18n';
 
-$GLOBALS['wgSocialTagsTwitterDescription']	= $wgSitename;
+$GLOBALS['wgSocialTagsImage']				= $wgLogo;
+$GLOBALS['wgSocialTagsImageSize']			= 300;
 $GLOBALS['wgSocialTagsTwitterSupport']		= true;
 $GLOBALS['wgSocialTagsTwitterHandle']		= "@mediawiki";
+$GLOBALS['wgSocialTagsTwitterCardType']		= "summary";
+$GLOBALS['wgSocialTagsTwitterDescription']	= $wgSitename;
 
 $GLOBALS['wgHooks']['ParserFirstCallInit'][]		= 'ExtSocialTags::init';
 $GLOBALS['wgParserOutputHooks']['ogpimage']			= 'ExtSocialTags::ph_image';
@@ -62,7 +65,7 @@ class ExtSocialTags {
 	}
 
 	public static function ph_image( $out, $pout, $data ) {
-		$out->mOGImage = wfFindFile( Title::newFromDBkey("File:" . $data['dbkey']) );
+		$out->mOGImage = wfFindFile( Title::newFromDBkey( "File:" . $data['dbkey'] ) );
 	}
 
 	public static function ph_description( $out, $pout, $data ) {
@@ -70,32 +73,36 @@ class ExtSocialTags {
 	}
 
 	public static function pageHook( &$out, &$sk ) {
-		global $wgLogo, $wgSitename, $wgXhtmlNamespaces, $wgSocialTagsTwitterDescription, $wgSocialTagsTwitterSupport, $wgSocialTagsTwitterHandle;
+		global $wgSitename, $wgXhtmlNamespaces, $wgSocialTagsImage,
+			$wgSocialTagsImageSize, $wgSocialTagsTwitterSupport,
+			$wgSocialTagsTwitterDescription, $wgSocialTagsTwitterHandle,
+			$wgSocialTagsTwitterCardType;
+
 		$wgXhtmlNamespaces["og"] = "http://opengraphprotocol.org/schema/";
 		$title = $out->getTitle();
 		$meta = array();
 
 		if ( $title->isContentPage() ) {
 			if ( $title->isMainPage() ) {
-				$meta["og:type"] = "website";
-				$meta["og:title"] = $wgSitename;
-				$meta["og:image"] = wfExpandUrl($wgLogo);
+				$meta["og:type"]	= "website";
+				$meta["og:title"]	= $wgSitename;
+				$meta["og:image"]	= wfExpandUrl( $wgSocialTagsImage );
 			}
 			else {
-				$meta["og:type"] = "article";
-				$meta["og:site_name"] = $wgSitename;
-				$meta["og:title"] = $title->getText() . " at " . $wgSitename;
+				$meta["og:type"]		= "article";
+				$meta["og:site_name"]	= $wgSitename;
+				$meta["og:title"]		= $title->getText() . " | " . $wgSitename;
 
 				if ( isset( $out->mOGImage ) && ( $out->mOGImage !== false ) ) {
-					$meta["og:image"] = wfExpandUrl($out->mOGImage->createThumb(150));
+					$meta["og:image"] = wfExpandUrl( $out->mOGImage->createThumb( $wgSocialTagsImageSize ) );
 				}
 				else {
-					$meta["og:image"] = wfExpandUrl($wgLogo);
+					$meta["og:image"] = wfExpandUrl( $wgSocialTagsImage );
 				}
 			}
 
 			if ( $wgSocialTagsTwitterSupport ) {
-				$meta["twitter:card"]	= "summary";
+				$meta["twitter:card"]	= $wgSocialTagsTwitterCardType;
 				$meta["twitter:site"]	= $wgSocialTagsTwitterHandle;
 				$meta["twitter:image"]	= $meta["og:image"];
 				$meta["twitter:title"]	= $meta["og:title"];
@@ -110,17 +117,17 @@ class ExtSocialTags {
 			}
 		}
 		else {
-			$meta["og:type"] = "article";
-			$meta["og:site_name"] = $wgSitename;
-			$meta["og:title"] = $title->getText() . " at " . $wgSitename;
-			$meta["og:image"] = wfExpandUrl($wgLogo);
+			$meta["og:type"]		= "article";
+			$meta["og:site_name"]	= $wgSitename;
+			$meta["og:title"]		= $title->getText() . " | " . $wgSitename;
+			$meta["og:image"]		= wfExpandUrl( $wgSocialTagsImage );
 
 			if ( $wgSocialTagsTwitterSupport ) {
-				$meta["twitter:card"]	= "summary";
-				$meta["twitter:site"]	= $wgSocialTagsTwitterHandle;
-				$meta["twitter:image"]	= $meta["og:image"];
-				$meta["twitter:title"]	= $meta["og:title"];
-				$meta["twitter:description"] = $wgSocialTagsTwitterDescription;
+				$meta["twitter:card"]			= "summary";
+				$meta["twitter:site"]			= $wgSocialTagsTwitterHandle;
+				$meta["twitter:image"]			= $meta["og:image"];
+				$meta["twitter:title"]			= $meta["og:title"];
+				$meta["twitter:description"]	= $wgSocialTagsTwitterDescription;
 			}
 		}
 
@@ -132,7 +139,7 @@ class ExtSocialTags {
 					$out->addMeta( "property:$property", $value );
 				}
 				else {
-					$out->addHeadItem( "meta:property:$property", " ".Html::element( 'meta', array( 'property' => $property, 'content' => $value ) )."\n" );
+					$out->addHeadItem( "meta:property:$property", " " . Html::element( 'meta', array( 'property' => $property, 'content' => $value ) ) );
 				}
 			}
 		}
