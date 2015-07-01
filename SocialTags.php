@@ -23,16 +23,22 @@ $GLOBALS['wgExtensionCredits']['parserhook'][] = array(
 	'license-name'		=> 'GPL-2.0+',
 );
 
-$GLOBALS['wgExtensionMessagesFiles']['SocialTagsMagic']	= dirname( __FILE__ ) . '/SocialTags.magic.php';
 $GLOBALS['wgMessagesDirs']['SocialTags']				= __DIR__ . '/i18n';
+$GLOBALS['wgExtensionMessagesFiles']['SocialTagsMagic']	= dirname( __FILE__ ) . '/SocialTags.magic.php';
 
+// Settings
 $GLOBALS['wgSocialTagsImage']				= $wgLogo;
 $GLOBALS['wgSocialTagsImageSize']			= 300;
 $GLOBALS['wgSocialTagsTwitterSupport']		= true;
 $GLOBALS['wgSocialTagsTwitterHandle']		= "@mediawiki";
-$GLOBALS['wgSocialTagsTwitterCardType']		= "summary";
 $GLOBALS['wgSocialTagsTwitterDescription']	= $wgSitename;
+$GLOBALS['wgSocialTagsTwitterCardType']		= array(
+	"mainpage"	=> "summary_large_image",
+	"content"	=> "summary",
+	"other"		=> "summary",
+);
 
+// Hooks
 $GLOBALS['wgHooks']['ParserFirstCallInit'][]		= 'ExtSocialTags::init';
 $GLOBALS['wgParserOutputHooks']['ogpimage']			= 'ExtSocialTags::ph_image';
 $GLOBALS['wgParserOutputHooks']['ogpdescription']	= 'ExtSocialTags::ph_description';
@@ -102,7 +108,12 @@ class ExtSocialTags {
 			}
 
 			if ( $wgSocialTagsTwitterSupport ) {
-				$meta["twitter:card"]	= $wgSocialTagsTwitterCardType;
+				if ( $title->isMainPage() ) {
+					$meta["twitter:card"]	= $wgSocialTagsTwitterCardType["mainpage"];
+				}
+				else {
+					$meta["twitter:card"]	= $wgSocialTagsTwitterCardType["content"];
+				}
 				$meta["twitter:site"]	= $wgSocialTagsTwitterHandle;
 				$meta["twitter:image"]	= $meta["og:image"];
 				$meta["twitter:title"]	= $meta["og:title"];
@@ -123,7 +134,7 @@ class ExtSocialTags {
 			$meta["og:image"]		= wfExpandUrl( $wgSocialTagsImage );
 
 			if ( $wgSocialTagsTwitterSupport ) {
-				$meta["twitter:card"]			= "summary";
+				$meta["twitter:card"]			= $wgSocialTagsTwitterCardType["other"];
 				$meta["twitter:site"]			= $wgSocialTagsTwitterHandle;
 				$meta["twitter:image"]			= $meta["og:image"];
 				$meta["twitter:title"]			= $meta["og:title"];
