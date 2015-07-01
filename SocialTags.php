@@ -88,6 +88,9 @@ class ExtSocialTags {
 		$title = $out->getTitle();
 		$meta = array();
 
+		$meta["og:url"]			= $title->getFullURL();
+		$meta["og:site_name"]	= $wgSitename;
+
 		if ( $title->isContentPage() ) {
 			if ( $title->isMainPage() ) {
 				$meta["og:type"]	= "website";
@@ -96,7 +99,6 @@ class ExtSocialTags {
 			}
 			else {
 				$meta["og:type"]		= "article";
-				$meta["og:site_name"]	= $wgSitename;
 				$meta["og:title"]		= $title->getText() . " | " . $wgSitename;
 
 				if ( isset( $out->mOGImage ) && ( $out->mOGImage !== false ) ) {
@@ -129,7 +131,6 @@ class ExtSocialTags {
 		}
 		else {
 			$meta["og:type"]		= "article";
-			$meta["og:site_name"]	= $wgSitename;
 			$meta["og:title"]		= $title->getText() . " | " . $wgSitename;
 			$meta["og:image"]		= wfExpandUrl( $wgSocialTagsImage );
 
@@ -141,8 +142,6 @@ class ExtSocialTags {
 				$meta["twitter:description"]	= $wgSocialTagsTwitterDescription;
 			}
 		}
-
-		$meta["og:url"] = $title->getFullURL();
 
 		foreach( $meta as $property => $value ) {
 			if ( $value ) {
