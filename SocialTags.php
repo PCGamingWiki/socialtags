@@ -149,7 +149,7 @@ class ExtSocialTags {
 					$out->addMeta( "property:$property", $value );
 				}
 				else {
-					$out->addHeadItem( "meta:property:$property", " " . Html::element( 'meta', array( 'property' => $property, 'content' => $value ) ) );
+					$out->addHeadItem( "meta:property:$property", Html::element( 'meta', array( 'property' => $property, 'content' => $value ) ) );
 				}
 			}
 		}
